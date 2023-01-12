@@ -1,0 +1,13 @@
+schema: '2.0'
+stages:
+  download_dataset:
+    cmd: src/download_dataset.sh
+    deps:
+    - path: src/download_dataset.sh
+      md5: 75d0744bb6349e4e24bcf6ffe161f82c
+      size: 310
+    outs:
+    - path: data/kitti_tiny/
+      md5: 25cdf51669b9b3929ea4c952aab7936c.dir
+      size: 6935537
+      nfiles: 152

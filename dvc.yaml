@@ -1,0 +1,9 @@
+stages:
+
+  download_dataset:
+    cmd: src/download_dataset.sh
+    deps:
+      - src/download_dataset.sh
+    outs:
+      - data/kitti_tiny/
+
