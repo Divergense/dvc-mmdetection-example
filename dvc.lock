@@ -1,13 +1,135 @@
 schema: '2.0'
 stages:
   download_dataset:
-    cmd: src/download_dataset.sh
+    cmd: python src/download_file.py https://download.openmmlab.com/mmdetection/data/kitti_tiny.zip
+      -o data/kitti_tiny.zip
     deps:
-    - path: src/download_dataset.sh
-      md5: 75d0744bb6349e4e24bcf6ffe161f82c
-      size: 310
+    - path: src/download_file.py
+      md5: ac9737037a8111b2bd7093e86e715e90
+      size: 1393
+    params:
+      params.yaml:
+        dataset.archive: kitti_tiny.zip
+        dataset.link: https://download.openmmlab.com/mmdetection/data/kitti_tiny.zip
+        dataset.root: data/
     outs:
-    - path: data/kitti_tiny/
+    - path: data/kitti_tiny.zip
+      md5: 314f18c61791a4c949cbe390da72a5d4
+      size: 6918271
+  extract_dataset:
+    cmd: unzip -n data/kitti_tiny.zip -d data/ > /dev/null
+    deps:
+    - path: data/kitti_tiny.zip
+      md5: 314f18c61791a4c949cbe390da72a5d4
+      size: 6918271
+    params:
+      params.yaml:
+        dataset.archive: kitti_tiny.zip
+        dataset.archive_root: data/
+        dataset.name: kitti_tiny
+        dataset.root: data/
+    outs:
+    - path: data/kitti_tiny
       md5: 25cdf51669b9b3929ea4c952aab7936c.dir
       size: 6935537
       nfiles: 152
+  download_model:
+    cmd: python src/download_file.py https://download.openmmlab.com/mmdetection/v2.0/faster_rcnn/faster_rcnn_r50_caffe_fpn_mstrain_3x_coco/faster_rcnn_r50_caffe_fpn_mstrain_3x_coco_20210526_095054-1f77628b.pth
+      -o checkpoints/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco_20210526_095054-1f77628b.pth
+    deps:
+    - path: src/download_file.py
+      md5: ac9737037a8111b2bd7093e86e715e90
+      size: 1393
+    params:
+      params.yaml:
+        model.checkpoint_link: https://download.openmmlab.com/mmdetection/v2.0/faster_rcnn/faster_rcnn_r50_caffe_fpn_mstrain_3x_coco/faster_rcnn_r50_caffe_fpn_mstrain_3x_coco_20210526_095054-1f77628b.pth
+        model.checkpoint_location: checkpoints/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco_20210526_095054-1f77628b.pth
+    outs:
+    - path: checkpoints/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco_20210526_095054-1f77628b.pth
+      md5: f07a73dc3630f89eb310ffb1d54ae10f
+      size: 167291982
+  register_dataset:
+    cmd: echo register dataset
+    deps:
+    - path: data/kitti_tiny
+      md5: 25cdf51669b9b3929ea4c952aab7936c.dir
+      size: 6935537
+      nfiles: 152
+  train_detector:
+    cmd: python src/train.py src/modified_faster_rcnn_r50.py
+    deps:
+    - path: checkpoints/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco_20210526_095054-1f77628b.pth
+      md5: f07a73dc3630f89eb310ffb1d54ae10f
+      size: 167291982
+    - path: data/kitti_tiny
+      md5: 25cdf51669b9b3929ea4c952aab7936c.dir
+      size: 6935537
+      nfiles: 152
+    - path: src/modified_faster_rcnn_r50.py
+      md5: 3f331df8400a7a06818d2f2157c1f740
+      size: 8603
+  setup_detector:
+    cmd: python src/setup_model.py src/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+      src/final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+    deps:
+    - path: src/cfg_modification.py
+      md5: 4a71f26a128253e69eb14f1490008477
+      size: 2465
+    - path: src/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+      md5: 5d98136d59cde7ebb57e59f261009324
+      size: 8307
+    - path: src/setup_model.py
+      md5: b24b9a8d27af4c73d28a85434b6cc7ab
+      size: 808
+    params:
+      params.yaml:
+        model.config_workdir: src/
+        model.name: faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+        model.new_name: final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+    outs:
+    - path: src/final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+      md5: b17efad12b9fe637de7989d11e7ad442
+      size: 8654
+  eval_detector:
+    cmd: echo eval detector
+  get_detector:
+    cmd: cp /home/raph/Documents/mmdetection/configs/faster_rcnn/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+      src/
+    deps:
+    - path: /home/raph/Documents/mmdetection/configs/faster_rcnn/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+      md5: e74af4ff08bd077631fd3f67acd6beda
+      size: 1554
+    params:
+      params.yaml:
+        model.config_root: /home/raph/Documents/mmdetection/configs/faster_rcnn/
+        model.config_workdir: src/
+        model.name: faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+    outs:
+    - path: src/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+      md5: e74af4ff08bd077631fd3f67acd6beda
+      size: 1554
+  get_base_model:
+    cmd: python src/setup_model.py /home/raph/Documents/mmdetection/configs/faster_rcnn/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+      src/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py --no-modify
+    params:
+      params.yaml:
+        model.config_root: /home/raph/Documents/mmdetection/configs/faster_rcnn/
+        model.config_workdir: src/
+        model.name: faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+    outs:
+    - path: src/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+      md5: 5d98136d59cde7ebb57e59f261009324
+      size: 8307
+  train_model:
+    cmd: python src/train.py src/final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+    deps:
+    - path: checkpoints/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco_20210526_095054-1f77628b.pth
+      md5: f07a73dc3630f89eb310ffb1d54ae10f
+      size: 167291982
+    - path: data/kitti_tiny
+      md5: 25cdf51669b9b3929ea4c952aab7936c.dir
+      size: 6935537
+      nfiles: 152
+    - path: src/final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+      md5: b17efad12b9fe637de7989d11e7ad442
+      size: 8654
