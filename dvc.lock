@@ -73,8 +73,8 @@ stages:
       src/final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
     deps:
     - path: src/cfg_modification.py
-      md5: 4a71f26a128253e69eb14f1490008477
-      size: 2465
+      md5: 224e3b65a39364b3da6c8cd7cb7abf82
+      size: 2480
     - path: src/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
       md5: 5d98136d59cde7ebb57e59f261009324
       size: 8307
@@ -88,8 +88,8 @@ stages:
         model.new_name: final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
     outs:
     - path: src/final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
-      md5: b17efad12b9fe637de7989d11e7ad442
-      size: 8654
+      md5: cf8c88a7b3f462897d74a57b4658dc11
+      size: 8669
   eval_detector:
     cmd: echo eval detector
   get_detector:
@@ -131,5 +131,5 @@ stages:
       size: 6935537
       nfiles: 152
     - path: src/final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
-      md5: b17efad12b9fe637de7989d11e7ad442
-      size: 8654
+      md5: cf8c88a7b3f462897d74a57b4658dc11
+      size: 8669
