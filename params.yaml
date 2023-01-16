@@ -1,0 +1,22 @@
+dataset:
+  link: https://download.openmmlab.com/mmdetection/data/kitti_tiny.zip
+  root: data/
+  archive_root: data/
+  archive: kitti_tiny.zip
+  name: kitti_tiny
+
+model:
+  checkpoint_link: https://download.openmmlab.com/mmdetection/v2.0/faster_rcnn/faster_rcnn_r50_caffe_fpn_mstrain_3x_coco/faster_rcnn_r50_caffe_fpn_mstrain_3x_coco_20210526_095054-1f77628b.pth
+  checkpoint_base: checkpoints/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco_20210526_095054-1f77628b.pth
+  config_root: /home/raph/Documents/mmdetection/configs/faster_rcnn/
+  config_workdir: src/
+  name: faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+  new_name: final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+  exp_name: faster_rcnn-kitti_dataset
+
+running:
+  num_classes: 3
+  lr: 2.5e-3
+  max_epoch: 1
+  seed: 0
+  device: cpu

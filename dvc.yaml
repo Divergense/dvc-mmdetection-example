@@ -39,12 +39,13 @@ stages:
     outs:
       - ${model.config_workdir}${model.name}
 
-  setup_detector:
+  setup_model:
     cmd: python src/setup_model.py ${model.config_workdir}${model.name} ${model.config_workdir}${model.new_name}
     deps:
       - ${model.config_workdir}${model.name}
       - src/setup_model.py
       - src/cfg_modification.py
+      - .env
     params:
       - model.config_workdir
       - model.name
@@ -58,6 +59,10 @@ stages:
       - ${dataset.root}${dataset.name}
       - ${model.checkpoint_base}
       - ${model.config_workdir}${model.new_name}
+    plots:
+      - dvclive/plots/metrics/train/loss.tsv
+    metrics:
+      - dvclive/metrics.json
 
 #  test_detector:
 #    cmd: python src/test.py ${model.config_workdir}${model.new_name} ${model.checkpoint}
