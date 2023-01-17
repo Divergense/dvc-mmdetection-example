@@ -82,7 +82,7 @@ def setup_mmdet(params):
 def setup_device(params):
     import torch
 
-    device = "cuda" if torch.cuda.is_availabel() else "cpu"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     params["running"]["device"] = device
 
 
