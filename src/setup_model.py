@@ -21,7 +21,7 @@ def main(args):
 	cfg = copy.deepcopy(base_cfg)
 	if args.modify:
 		import os
-		import yaml
+		from yaml import safe_load
 		from dotenv import load_dotenv
 		from cfg_modification import (
 			modify_cfg, 
@@ -31,7 +31,7 @@ def main(args):
 		load_dotenv()
 		params_data = os.environ.get('PARAMS_DATA')
 		with open(params_data, 'r') as data:
-			params = yaml.safe_load(data)
+			params = safe_load(data)
 		
 		cfg = modify_cfg(cfg, params)
 		try:
