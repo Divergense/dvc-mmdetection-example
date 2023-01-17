@@ -24,8 +24,11 @@ PACKAGES = [("mmdetection", "https://github.com/open-mmlab/mmdetection.git")]
 CWD = Path.cwd()
 
 
-def load_params():
-    with open(PARAMS_FILE, "r") as file:
+def load_params(params_file: str):
+    if PARAMS_FILE is None:
+        raise ValueError('Check .env file')
+
+    with open(params_file, "r") as file:
         params = safe_load(file)
     return params
 
@@ -48,18 +51,23 @@ def install_packages(packages: List[Tuple]) -> None:
     """
     import sys
     import subprocess
+    import importlib
 
     for package_name, github_url in packages:
-        if github_url is None:
-            subprocess.check_call(
-                [sys.executable, "-m", "pip", "install", package_name]
-            )
-        else:
-            subprocess.run(["rm", "-rf", package_name])
-            subprocess.run(["git", "clone", github_url])
-            os.chdir(package_name)
-            subprocess.run(["pip", "install", "-e", "."])
-            os.chdir("..")
+        try:
+            importlib.import_module(package_name)
+            print(f'Package {package_name} is already installed.')
+        except ImportError:
+            if github_url is None:
+                subprocess.check_call(
+                    [sys.executable, "-m", "pip", "install", package_name]
+                )
+            else:
+                subprocess.run(["rm", "-rf", package_name])
+                subprocess.run(["git", "clone", github_url])
+                os.chdir(package_name)
+                subprocess.run(["pip", "install", "-e", "."])
+                os.chdir("..")
 
 
 def setup_mmdet(params):
@@ -93,7 +101,10 @@ def dump_params(params):
 
 
 def main():
-    params = load_params()
+    params = load_params(PARAMS_FILE)
+    if params is None:
+        raise ValueError('yaml file was not loaded!')
+        
     create_dirs(DIRS)
     install_packages(PACKAGES)
     setup_mmdet(params)
