@@ -84,7 +84,7 @@ def setup_mmdet(params):
         mmdet_configs = default_mmdet_configs
 
     mmdet_configs = Path(mmdet_configs).resolve()
-    params["model"]["config_root"] = str(mmdet_configs)
+    params["model"]["config_root"] = str(mmdet_configs) + os.sep
 
 
 def setup_device(params):
@@ -104,7 +104,7 @@ def main():
     params = load_params(PARAMS_FILE)
     if params is None:
         raise ValueError('yaml file was not loaded!')
-        
+
     create_dirs(DIRS)
     install_packages(PACKAGES)
     setup_mmdet(params)
