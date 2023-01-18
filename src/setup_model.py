@@ -36,8 +36,8 @@ def main(args):
 		cfg = modify_cfg(cfg, params)
 		try:
 			import mlflow
-		except ImportError as exc:
-			print(exc)
+		except ImportError:
+			raise ImportError('Please install MLFlow')
 		cfg = set_mlflow_logger(cfg, params)
 	
 	cfg.dump(args.output)  # save config into file

@@ -2,34 +2,33 @@ schema: '2.0'
 stages:
   download_dataset:
     cmd: python src/download_file.py https://download.openmmlab.com/mmdetection/data/kitti_tiny.zip
-      -o data/kitti_tiny.zip
+      -o data//kitti_tiny.zip
     deps:
     - path: src/download_file.py
       md5: ac9737037a8111b2bd7093e86e715e90
       size: 1393
     params:
       params.yaml:
-        dataset.archive: kitti_tiny.zip
+        dataset.archive_name: kitti_tiny.zip
         dataset.link: https://download.openmmlab.com/mmdetection/data/kitti_tiny.zip
         dataset.root: data/
     outs:
-    - path: data/kitti_tiny.zip
+    - path: data//kitti_tiny.zip
       md5: 314f18c61791a4c949cbe390da72a5d4
       size: 6918271
   extract_dataset:
-    cmd: unzip -n data/kitti_tiny.zip -d data/ > /dev/null
+    cmd: unzip -n data//kitti_tiny.zip -d data/ > /dev/null
     deps:
-    - path: data/kitti_tiny.zip
+    - path: data//kitti_tiny.zip
       md5: 314f18c61791a4c949cbe390da72a5d4
       size: 6918271
     params:
       params.yaml:
-        dataset.archive: kitti_tiny.zip
-        dataset.archive_root: data/
+        dataset.archive_name: kitti_tiny.zip
         dataset.name: kitti_tiny
         dataset.root: data/
     outs:
-    - path: data/kitti_tiny
+    - path: data//kitti_tiny
       md5: 25cdf51669b9b3929ea4c952aab7936c.dir
       size: 6935537
       nfiles: 152
@@ -109,59 +108,69 @@ stages:
       md5: e74af4ff08bd077631fd3f67acd6beda
       size: 1554
   get_base_model:
-    cmd: python src/setup_model.py /home/raph/Documents/mmdetection/configs/faster_rcnn/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
-      src/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py --no-modify
+    cmd: python src/setup_model.py /home/raph/Documents/mmdetection/configs/faster_rcnn//faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+      src//faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py --no-modify
     params:
       params.yaml:
         model.config_root: /home/raph/Documents/mmdetection/configs/faster_rcnn/
         model.config_workdir: src/
         model.name: faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
     outs:
-    - path: src/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+    - path: src//faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
       md5: 5d98136d59cde7ebb57e59f261009324
       size: 8307
   train_model:
-    cmd: python src/train.py src/final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+    cmd: python src/train.py src//final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
     deps:
     - path: checkpoints/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco_20210526_095054-1f77628b.pth
       md5: f07a73dc3630f89eb310ffb1d54ae10f
       size: 167291982
-    - path: data/kitti_tiny
+    - path: data//kitti_tiny
       md5: 25cdf51669b9b3929ea4c952aab7936c.dir
       size: 6935537
       nfiles: 152
-    - path: src/final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
-      md5: 9dd391c3fa092e3710b1c8554164e547
-      size: 10111
+    - path: src//final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+      md5: 85f41d1585d7127ee2818996a8c980b9
+      size: 10149
     outs:
-    - path: dvclive/metrics.json
-      md5: b22ba3ac854e6726e06e8993ccb3bb8b
-      size: 406
-    - path: dvclive/plots/metrics/train/loss.tsv
-      md5: 3c97ea19c19e42e4ff9c79d3cd746f7f
-      size: 126
+    - path: eval/model_epoch_1.pth
+      md5: 3df578f74901c8bc8c9cd6276cbc6cb7
+      size: 330114425
   setup_model:
-    cmd: python src/setup_model.py src/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
-      src/final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+    cmd: python src/setup_model.py src//faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+      src//final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
     deps:
     - path: .env
       md5: cf68afef5b1d4a26d109040ab29667f2
       size: 24
-    - path: src/cfg_modification.py
-      md5: 054db5cbf56fe6804c195043e5c1f380
-      size: 3440
-    - path: src/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+    - path: src//faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
       md5: 5d98136d59cde7ebb57e59f261009324
       size: 8307
+    - path: src/cfg_modification.py
+      md5: 33eb41796d077fa3e802f4f2d99b6869
+      size: 3481
+    - path: src/kitti_dataset.py
+      md5: e16365ad9e25451edc18d0fb27d4a407
+      size: 2169
     - path: src/setup_model.py
-      md5: 3583c0cc9c87b62d6dfca000f7223a0e
-      size: 1152
+      md5: 63269dab6f5d46451d8de4b34f2ba480
+      size: 1187
     params:
       params.yaml:
         model.config_workdir: src/
         model.name: faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
         model.new_name: final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
     outs:
-    - path: src/final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
-      md5: 9dd391c3fa092e3710b1c8554164e547
-      size: 10111
+    - path: src//final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+      md5: 85f41d1585d7127ee2818996a8c980b9
+      size: 10149
+  test_detector:
+    cmd: python src/test.py src//final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+      eval/model_epoch_1.pth --eval mAP
+    deps:
+    - path: eval/model_epoch_1.pth
+      md5: 3df578f74901c8bc8c9cd6276cbc6cb7
+      size: 330114425
+    - path: src//final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
+      md5: 85f41d1585d7127ee2818996a8c980b9
+      size: 10149

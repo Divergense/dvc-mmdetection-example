@@ -1,6 +1,7 @@
 import mmcv
 import os.path as osp
 
+from os import sep
 from mmdet.apis import set_random_seed
 
 
@@ -8,38 +9,40 @@ from mmdet.apis import set_random_seed
 def modify_cfg(cfg, params):
     from kitti_dataset import KittiTinyDataset
 
+    DATA_ROOT = params['dataset']['root'] + sep + params['dataset']['name']
+
     cfg.custom_imports = dict(
         imports=['kitti_dataset'],
         allow_failed_imports=False)
-
+    
     # Modify dataset type and path
     cfg.dataset_type = 'KittiTinyDataset'
-    cfg.data_root = 'data/kitti_tiny/'
+    cfg.data_root = DATA_ROOT
 
     cfg.data.test.type = 'KittiTinyDataset'
-    cfg.data.test.data_root = 'data/kitti_tiny/'
+    cfg.data.test.data_root = DATA_ROOT
     cfg.data.test.ann_file = 'train.txt'
     cfg.data.test.img_prefix = 'training/image_2'
 
     cfg.data.train.type = 'KittiTinyDataset'
-    cfg.data.train.data_root = 'data/kitti_tiny/'
+    cfg.data.train.data_root = DATA_ROOT
     cfg.data.train.ann_file = 'train.txt'
     cfg.data.train.img_prefix = 'training/image_2'
 
     cfg.data.val.type = 'KittiTinyDataset'
-    cfg.data.val.data_root = 'data/kitti_tiny/'
+    cfg.data.val.data_root = DATA_ROOT
     cfg.data.val.ann_file = 'val.txt'
     cfg.data.val.img_prefix = 'training/image_2'
 
     # modify num classes of the model in box head
-    cfg.model.roi_head.bbox_head.num_classes = 3
+    cfg.model.roi_head.bbox_head.num_classes = params['running']['num_classes']
 
     # If we need to finetune a model based on a pre-trained detector, we need to
     # use load_from to set the path of checkpoints.
-    cfg.load_from = params['model']['checkpoint_base']  # 'checkpoints/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco_20210526_095054-1f77628b.pth'
+    cfg.load_from = params['model']['checkpoint']  # 'checkpoints/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco_20210526_095054-1f77628b.pth'
 
     # Set up working dir to save files and logs.
-    cfg.work_dir = './eval'
+    cfg.work_dir =  params['running']['work_dir']
     mmcv.mkdir_or_exist(osp.abspath(cfg.work_dir))
 
     # The original learning rate (LR) is set for 8-GPU training.
@@ -51,8 +54,7 @@ def modify_cfg(cfg, params):
     # We can also use tensorboard to log the training process
     cfg.log_config.hooks = [
         dict(type='TextLoggerHook'),
-        dict(type='TensorboardLoggerHook'), 
-        dict(type='DvcliveLoggerHook', report="auto"),
+        dict(type='TensorboardLoggerHook'),
         ]
     
     cfg.runner.max_epochs = params['running']['max_epoch']
@@ -64,8 +66,7 @@ def modify_cfg(cfg, params):
     cfg.evaluation.interval = 1
 
     # We can set the checkpoint saving interval to reduce the storage cost
-    cfg.checkpoint_config.interval = 1
-    # cfg.checkpoint_config.out_dir = "eval/faster_rcnn"
+    cfg.checkpoint_config = dict(interval=1, filename_tmpl='model_epoch_{}.pth')
 
     # Set seed thus the results are more reproducible
     cfg.seed = params['running']['seed']

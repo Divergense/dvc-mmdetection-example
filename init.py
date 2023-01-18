@@ -84,7 +84,7 @@ def setup_mmdet(params):
         mmdet_configs = default_mmdet_configs
 
     mmdet_configs = Path(mmdet_configs).resolve()
-    params["model"]["config_root"] = str(mmdet_configs) + os.sep
+    params["model"]["config_root"] = str(mmdet_configs)
 
 
 def setup_device(params):

@@ -1,49 +1,49 @@
 stages:
 
   download_dataset:
-    cmd: python src/download_file.py ${dataset.link} -o ${dataset.root}${dataset.archive}
+    cmd: python src/download_file.py ${dataset.link} -o ${dataset.root}/${dataset.archive_name}
     deps:
       - src/download_file.py
     params:
       - dataset.link
       - dataset.root
-      - dataset.archive
+      - dataset.archive_name
     outs:
-      - ${dataset.root}${dataset.archive}
+      - ${dataset.root}/${dataset.archive_name}
 
   extract_dataset:
-    cmd: unzip -n ${dataset.archive_root}${dataset.archive} -d ${dataset.root} > /dev/null
+    cmd: unzip -n ${dataset.root}/${dataset.archive_name} -d ${dataset.root} > /dev/null
     deps:
-      - ${dataset.root}${dataset.archive}
+      - ${dataset.root}/${dataset.archive_name}
     params:
-      - dataset.archive
-      - dataset.archive_root
-      - dataset.root      
+      - dataset.archive_name
+      - dataset.root    
       - dataset.name 
     outs:
-      - ${dataset.root}${dataset.name}
+      - ${dataset.root}/${dataset.name}
 
   download_model:
-    cmd: python src/download_file.py ${model.checkpoint_link} -o ${model.checkpoint_base}
+    cmd: python src/download_file.py ${model.checkpoint_link} -o ${model.checkpoint}
     deps:
       - src/download_file.py
     outs:
-      - ${model.checkpoint_base}
+      - ${model.checkpoint}
 
   get_base_model:
-    cmd: python src/setup_model.py ${model.config_root}${model.name} ${model.config_workdir}${model.name} --no-modify
+    cmd: python src/setup_model.py ${model.config_root}/${model.name} ${model.config_workdir}/${model.name} --no-modify
     params:
       - model.config_root
       - model.config_workdir
       - model.name
     outs:
-      - ${model.config_workdir}${model.name}
+      - ${model.config_workdir}/${model.name}
 
   setup_model:
-    cmd: python src/setup_model.py ${model.config_workdir}${model.name} ${model.config_workdir}${model.new_name}
+    cmd: python src/setup_model.py ${model.config_workdir}/${model.name} ${model.config_workdir}/${model.new_name}
     deps:
-      - ${model.config_workdir}${model.name}
-      - src/setup_model.py
+      - ${model.config_workdir}/${model.name}
+      - ${dataset.definition}
+      - src/setup_model.py  
       - src/cfg_modification.py
       - .env
     params:
@@ -51,20 +51,19 @@ stages:
       - model.name
       - model.new_name
     outs:
-      - ${model.config_workdir}${model.new_name}
+      - ${model.config_workdir}/${model.new_name}
 
   train_model:
-    cmd: python src/train.py ${model.config_workdir}${model.new_name}
+    cmd: python src/train.py ${model.config_workdir}/${model.new_name}
     deps:
-      - ${dataset.root}${dataset.name}
-      - ${model.checkpoint_base}
-      - ${model.config_workdir}${model.new_name}
-    plots:
-      - dvclive/plots/metrics/train/loss.tsv
-    metrics:
-      - dvclive/metrics.json
+      - ${dataset.root}/${dataset.name}
+      - ${model.checkpoint}
+      - ${model.config_workdir}/${model.new_name}
+    outs:
+      - eval/model_epoch_${running.max_epoch}.pth
 
-#  test_detector:
-#    cmd: python src/test.py ${model.config_workdir}${model.new_name} ${model.checkpoint}
-#    deps:
-#      - ${model.checkpoint}
+  test_detector:
+    cmd: python src/test.py ${model.config_workdir}/${model.new_name} eval/model_epoch_${running.max_epoch}.pth --eval mAP
+    deps:
+      - ${model.config_workdir}/${model.new_name}
+      - eval/model_epoch_${running.max_epoch}.pth
