@@ -208,9 +208,9 @@ def main():
 
     rank, _ = get_dist_info()
     # allows not to create
+    timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
     if args.work_dir is not None and rank == 0:
         mmcv.mkdir_or_exist(osp.abspath(args.work_dir))
-        timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
         json_file = osp.join(args.work_dir, f'eval_{timestamp}.json')
 
     # build the dataloader
@@ -273,6 +273,15 @@ def main():
             ]:
                 eval_kwargs.pop(key, None)
             eval_kwargs.update(dict(metric=args.eval, **kwargs))
+           
+            import logging
+
+            logging.basicConfig(filename='eval/metrics_table.log',
+                    filemode='a', 
+                    level=logging.INFO)
+            logger = logging.getLogger(f"Validation summary: {timestamp}")
+            eval_kwargs['logger'] = logger
+            
             metric = dataset.evaluate(outputs, **eval_kwargs)
             print(metric)
             metric_dict = dict(config=args.config, metric=metric)

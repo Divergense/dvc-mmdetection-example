@@ -63,7 +63,8 @@ stages:
       - eval/model_epoch_${running.max_epoch}.pth
 
   test_detector:
-    cmd: python src/test.py ${model.config_workdir}/${model.new_name} eval/model_epoch_${running.max_epoch}.pth --eval mAP
+    cmd: python src/test.py ${model.config_workdir}/${model.new_name} eval/model_epoch_${running.max_epoch}.pth --eval mAP --work-dir ${running.work_dir}
     deps:
+      - src/test.py
       - ${model.config_workdir}/${model.new_name}
       - eval/model_epoch_${running.max_epoch}.pth

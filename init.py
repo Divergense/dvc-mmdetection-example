@@ -28,7 +28,7 @@ PARAMS_FILE = os.environ.get("PARAMS_DATA")
 DIRS = ["checkpoints"]
 PACKAGES = [
     PackageWrapperMmcv('mmcv-full'), 
-    PackageWrapperGithub("mmdetection", "https://github.com/open-mmlab/mmdetection.git"),
+    PackageWrapperGithub("mmdetection", "https://github.com/Divergense/mmdetection.git"),
     ]
 CWD = Path.cwd()
 

@@ -166,11 +166,14 @@ stages:
       size: 10149
   test_detector:
     cmd: python src/test.py src//final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
-      eval/model_epoch_1.pth --eval mAP
+      eval/model_epoch_1.pth --eval mAP --work-dir eval/
     deps:
-    - path: eval/model_epoch_1.pth
+    - path: eval/latest.pth
       md5: 3df578f74901c8bc8c9cd6276cbc6cb7
       size: 330114425
     - path: src//final_faster_rcnn_r50_caffe_fpn_mstrain_1x_coco.py
       md5: 85f41d1585d7127ee2818996a8c980b9
       size: 10149
+    - path: src/test.py
+      md5: a8fd2f79f80a267ec1c032933df33da1
+      size: 11195
