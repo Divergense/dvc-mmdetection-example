@@ -11,8 +11,14 @@ Init steps:
 """
 import os
 
+from src.utils import (
+    PackageWrapperMmcv, 
+    PackageWrapperPip, 
+    PackageWrapperGithub
+    )
+
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any
 from yaml import safe_load, safe_dump
 from dotenv import load_dotenv
 
@@ -20,11 +26,14 @@ from dotenv import load_dotenv
 load_dotenv()
 PARAMS_FILE = os.environ.get("PARAMS_DATA")
 DIRS = ["checkpoints"]
-PACKAGES = [("mmdetection", "https://github.com/open-mmlab/mmdetection.git")]
+PACKAGES = [
+    PackageWrapperMmcv('mmcv-full'), 
+    PackageWrapperGithub("mmdetection", "https://github.com/open-mmlab/mmdetection.git"),
+    ]
 CWD = Path.cwd()
 
 
-def load_params(params_file: str):
+def load_params(params_file: str) -> Dict[str, Any]:
     if PARAMS_FILE is None:
         raise ValueError('Check .env file')
 
@@ -49,28 +58,17 @@ def install_packages(packages: List[Tuple]) -> None:
     If github_url is None package will be installed through pip,
     else github will be used.
     """
-    import sys
-    import subprocess
     import importlib
-
-    for package_name, github_url in packages:
+    
+    for package in packages:
         try:
-            importlib.import_module(package_name)
-            print(f'Package {package_name} is already installed.')
+            importlib.import_module(package.name)
+            print(f'Package {package.name} is already installed.')
         except ImportError:
-            if github_url is None:
-                subprocess.check_call(
-                    [sys.executable, "-m", "pip", "install", package_name]
-                )
-            else:
-                subprocess.run(["rm", "-rf", package_name])
-                subprocess.run(["git", "clone", github_url])
-                os.chdir(package_name)
-                subprocess.run(["pip", "install", "-e", "."])
-                os.chdir("..")
+            package.install()
 
 
-def setup_mmdet(params):
+def setup_mmdet(params: Dict[str, Any]) -> None:
     default_mmdet_configs = Path("mmdetection/configs/faster_rcnn/")
     if not default_mmdet_configs.is_dir():
         default_mmdet_configs = None
@@ -87,17 +85,16 @@ def setup_mmdet(params):
     params["model"]["config_root"] = str(mmdet_configs)
 
 
-def setup_device(params):
+def setup_device(params: Dict[str, Any]) -> None:
     import torch
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     params["running"]["device"] = device
 
 
-def dump_params(params):
+def dump_params(params: Dict[str, Any]) -> None:
     with open(PARAMS_FILE, "w") as out_file:
         safe_dump(params, out_file, default_flow_style=False)
-    print("Done!")
 
 
 def main():
@@ -110,6 +107,7 @@ def main():
     setup_mmdet(params)
     setup_device(params)
     dump_params(params)
+    print("Done!")
 
 
 if __name__ == "__main__":
