@@ -77,7 +77,7 @@ class PackageWrapperMmcv(PackageWrapperBase):
                 importlib.import_module(openmim.name)
             except ImportError:
                 openmim.install()
-                
+
             self.base_package_installed = True
         
-        subprocess.run(["min", "install", self.name])
+        subprocess.run(["mim", "install", self.name])
